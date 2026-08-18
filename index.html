@@ -1,0 +1,28 @@
+<div id="alert-banner" style="display: none; background: #ef4444; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+  <strong>Alert:</strong> <span id="alert-msg"></span>
+</div>
+
+<script>
+  const eventSource = new EventSource('http://localhost/api/server-stats');
+
+  // 1. Unnamed messages still go to onmessage
+  eventSource.onmessage = (event) => {
+    const stats = JSON.parse(event.data);
+    document.getElementById('load-avg').innerText = stats.memoryUsagePercent;
+  };
+
+  // 2. Custom named events are handled via addEventListener
+  eventSource.addEventListener('cpu-alert', (event) => {
+    const alertData = JSON.parse(event.data);
+    
+    // Display the alert banner
+    const banner = document.getElementById('alert-banner');
+    document.getElementById('alert-msg').innerText = `${alertData.message} at ${alertData.timestamp}`;
+    banner.style.display = 'block';
+
+    // Auto-hide alert after 3 seconds
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 3000);
+  });
+</script>

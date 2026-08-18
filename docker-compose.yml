@@ -1,0 +1,22 @@
+services:
+  fastapi_app:
+    build: .
+    container_name: sse_fastapi
+    restart: always
+    # Allows psutil to inspect host system stats instead of container limits
+    pid: "host"
+    volumes:
+      - /proc:/host/proc:ro
+    environment:
+      - PSUTIL_PROCFS_PATH=/host/proc
+
+  nginx:
+    image: nginx:alpine
+    container_name: sse_nginx
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - fastapi_app
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
