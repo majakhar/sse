@@ -3,7 +3,7 @@ import json
 import time
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi.responses import StreamingResponse, FileResponse
 import psutil
 
 app = FastAPI()
@@ -45,7 +45,11 @@ async def generate_server_metrics():
             yield f"event: cpu-alert\ndata: {json.dumps(alert)}\n\n"
 
         # Stream update every 1 second
-        await asyncio.sleep(30)
+        await asyncio.sleep(5)
+
+@app.get("/")
+async def serve_dashboard():
+    return FileResponse("index.html")
 
 @app.get("/api/server-stats")
 async def sse_endpoint():
